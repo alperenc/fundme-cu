@@ -1,0 +1,10 @@
+// Remix
+.states
+.deploys
+.prettierrc.json
+
+// Solidity Compiler
+artifacts
+
+// Git
+.git
