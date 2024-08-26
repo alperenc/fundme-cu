@@ -3,23 +3,30 @@ pragma solidity ^0.8.18;
 
 import {PriceConverter} from "./PriceConverter.sol";
 
+// 699432 gas
+// 679292 gas: add constant keyword to MINIMUM_USD
+// 655701 gas: add immutable keyword to i_owner
 contract FundMe {
     using PriceConverter for uint256;
 
-    uint256 public minimumUsd = 5e18;
+    uint256 public constant MINIMUM_USD = 5e18; // declare constant when assigned immediately
+    // 307 gas: constant
+    // 2451 gas: non-constant
 
     address[] public funders;
     mapping(address funder => uint256 amountFunded) public addressToAmoundFunded;
 
-    address public owner;
+    address public immutable i_owner; // declare immutable when assigned later
+    // 444 gas: immutable
+    // 2558 gas: non-immutable
 
     constructor() {
-        owner = msg.sender;
+        i_owner = msg.sender;
     }
 
     function fund() public payable {
         // Allow users to send $ (have a minimum $ sent)
-        require(msg.value.getConversionRate() > minimumUsd, "Not enough USD sent");
+        require(msg.value.getConversionRate() > MINIMUM_USD, "Not enough USD sent");
         funders.push(msg.sender);
         addressToAmoundFunded[msg.sender] += msg.value;
     }
@@ -50,7 +57,7 @@ contract FundMe {
     }
 
     modifier onlyOwner() {
-        require(msg.sender == owner, "Must be owner to perform this action");
+        require(msg.sender == i_owner, "Must be owner to perform this action");
         _; // Order of the underscore matters; determines where the contents of the function with this modifier executes
     }
 }
