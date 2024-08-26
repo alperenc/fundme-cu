@@ -3,6 +3,8 @@ pragma solidity ^0.8.18;
 
 import {PriceConverter} from "./PriceConverter.sol";
 
+error NotOwner();
+
 // 699432 gas
 // 679292 gas: add constant keyword to MINIMUM_USD
 // 655701 gas: add immutable keyword to i_owner
@@ -57,7 +59,17 @@ contract FundMe {
     }
 
     modifier onlyOwner() {
-        require(msg.sender == i_owner, "Must be owner to perform this action");
+        // require(msg.sender == i_owner, "Must be owner to perform this action");
+        if (msg.sender != i_owner) { revert NotOwner(); }
         _; // Order of the underscore matters; determines where the contents of the function with this modifier executes
+    }
+
+    // What happens if someone sends this contract ETH without calling the fund() function
+    receive() external payable {
+        fund();
+    }
+
+    fallback() external payable {
+        fund();
     }
 }
